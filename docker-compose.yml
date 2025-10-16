@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: s2x-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-s2x}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build: .
+    container_name: s2x-api
+    environment:
+      - DB_URL=${DB_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/s2x}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+volumes:
+  pgdata:
