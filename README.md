@@ -134,14 +134,14 @@ Para futuras entregas, se implementarán:
 
 ## Release Notes
 
-### v1.0 — Entrega 1
+### v1.1 — Entrega 1
 - Implementación base del backend con FastAPI.
 - CRUD completo para usuarios, proyectos, audios y transcripciones.
 - Validación de datos con Pydantic.
 - Base de datos relacional PostgreSQL.
 - Contenedorización completa con Docker Compose.
 
-📌 [Ver releases en GitHub](https://github.com/usuario/speech2textx/releases)
+📌 [Ver releases en GitHub](https://github.com/Speech2Text-X/Proyecto/releases/tag/v1.1)
 
 ---
 
@@ -167,9 +167,10 @@ Consulta el archivo `LICENSE` para más detalles.
 4. Crea un **Pull Request** con la descripción de tus aportes.
 
 ### Contacto del equipo:
-- **Luciano Yévenes** — luciano@correo.com
-- **Tomás** — t@correo.com
-- **Nicolás** — n@correo.com
+
+- **Tomás Castillo** — tomas.castilloc@usm.cl
+- **Nicolas Cortes** — nicolas.cortess@usm.cl
+- **Luciano Yevenes** — luciano.yevenes@usm.cl
 
 ---
 
@@ -185,7 +186,7 @@ El archivo `.gitignore` está configurado para ignorar:
 
 ## Información adicional
 
-- **Repositorio:** [https://github.com/usuario/speech2textx](https://github.com/usuario/speech2textx)
+- **Repositorio:** [https://github.com/usuario/speech2textx]([https://github.com/usuario/speech2textx](https://github.com/Speech2Text-X/Proyecto))
 - **Documentación extendida:** disponible en la Wiki.
 - **Diagramas y evidencias:** ubicados en la carpeta `/docs`.
 - **Frontend:** en desarrollo (fase 2 del proyecto).
