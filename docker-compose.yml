@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   postgres:
     image: postgres:16-alpine
@@ -19,7 +18,7 @@ services:
       timeout: 3s
       retries: 10
   api:
-    build: .
+    build: ./backend
     container_name: s2x-api
     environment:
       - DB_URL=${DB_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/s2x}
