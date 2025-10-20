@@ -49,7 +49,7 @@ Proyecto/
 
 ## Instrucciones de instalación
 ### Requisitos previos
-- Docker y Docker Compose instalados.
+- Docker instalado.
 - Git instalado.
 - Archivo `.env` con variables de entorno (ejemplo en `.env.example`).
 
@@ -134,14 +134,14 @@ Para futuras entregas, se implementarán:
 
 ## Release Notes
 
-### v1.1 — Entrega 1
+### v1.2 — Entrega 1
 - Implementación base del backend con FastAPI.
 - CRUD completo para usuarios, proyectos, audios y transcripciones.
 - Validación de datos con Pydantic.
 - Base de datos relacional PostgreSQL.
 - Contenedorización completa con Docker Compose.
 
-📌 [Ver releases en GitHub](https://github.com/Speech2Text-X/Proyecto/releases/tag/v1.1)
+📌 [Ver releases en GitHub](https://github.com/Speech2Text-X/Proyecto/releases/tag/v1.2)
 
 ---
 
@@ -186,7 +186,7 @@ El archivo `.gitignore` está configurado para ignorar:
 
 ## Información adicional
 
-- **Repositorio:** [https://github.com/usuario/speech2textx]([https://github.com/usuario/speech2textx](https://github.com/Speech2Text-X/Proyecto))
+- **Repositorio:** [https://github.com/Speech2Text-X/Proyecto](https://github.com/Speech2Text-X/Proyecto)
 - **Documentación extendida:** disponible en la Wiki.
 - **Diagramas y evidencias:** ubicados en la carpeta `/docs`.
 - **Frontend:** en desarrollo (fase 2 del proyecto).
