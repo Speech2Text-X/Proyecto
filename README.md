@@ -8,8 +8,8 @@
 - Nicolas Cortes
 - Luciano Yevenes
 
-**Herramienta de testing:** PyTest  
-**Tecnologías:** TypeScript (Frontend) · Python (Backend) · PostgreSQL · AWS
+### **Herramienta de testing:** PyTest  
+### **Tecnologías:** TypeScript (Frontend) · Python (Backend) · PostgreSQL · AWS
 ---
 
 ## Resumen del Proyecto
