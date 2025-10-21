@@ -134,19 +134,19 @@ Para futuras entregas, se implementarán:
 
 ## Release Notes
 
-### v1.2 — Entrega 1
+### v1.3 — Entrega 1
 - Implementación base del backend con FastAPI.
 - CRUD completo para usuarios, proyectos, audios y transcripciones.
 - Validación de datos con Pydantic.
 - Base de datos relacional PostgreSQL.
 - Contenedorización completa con Docker Compose.
 
-📌 [Ver releases en GitHub](https://github.com/Speech2Text-X/Proyecto/releases/tag/v1.2)
+📌 [Ver releases en GitHub](https://github.com/Speech2Text-X/Proyecto/releases/tag/v1.3)
 
 ---
 
 ## Cápsula de Video Explicativa
-🔗 [Video Entrega 1 - YouTube](https://youtu.be/MEkOMKmbDxs)
+🔗 [Video Entrega 1 - YouTube](https://youtu.be/MuSNkJuxG_M)
 
 ---
 
