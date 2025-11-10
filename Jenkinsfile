@@ -15,6 +15,7 @@ pipeline {
     IMAGE_TAG = "${env.GIT_COMMIT ? env.GIT_COMMIT.take(7) : 'local'}"
     DEPLOY_HOST = ''
     DEPLOY_USER = ''
+    DB_SERVICE = 'db'
     DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1437531993469358121/3W1dEIwKvhhkxDeZjvP5Xu2i-CnkWrEng2HJ53mLljXOaBpFlHk4M4SgyQgzrUIH9x5u'
   }
   stages {
@@ -30,7 +31,7 @@ pipeline {
         dir("${WORKDIR}") {
           sh '''
             set -e
-            compose() { docker-compose "$@"; }
+            compose() { docker compose "$@" 2>/dev/null || docker-compose "$@"; }
             compose build
           '''
         }
@@ -42,31 +43,42 @@ pipeline {
         dir("${WORKDIR}") {
           sh '''
             set -e
-            compose() { docker compose "$@" || docker-compose "$@"; }
+            compose() { docker compose "$@" 2>/dev/null || docker-compose "$@"; }
 
-            docker rm -f s2x-postgres s2x-api >/dev/null 2>&1 || true
             compose down -v || true
-
-            compose up -d postgres
+            compose up -d ${DB_SERVICE}
 
             for i in $(seq 1 30); do
-              if compose exec -T postgres pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x}; then
+              if compose exec -T ${DB_SERVICE} pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x}; then
                 echo "Postgres OK"; break
               fi
               echo "Esperando Postgres..."; sleep 2
             done
 
+            if ! compose exec -T ${DB_SERVICE} bash -lc 'command -v psql >/dev/null 2>&1'; then
+              exit 1
+            fi
+
+            READY=""
             for i in $(seq 1 60); do
-              READY=$(compose exec -T postgres psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -Atc "SELECT 1 FROM information_schema.tables WHERE table_name='notifications' LIMIT 1;" 2>/dev/null || true)
-              if [ "$READY" = "1" ]; then
+              READY=$(compose exec -T ${DB_SERVICE} psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -Atc "SELECT to_regclass('public.notifications');" 2>/dev/null || true)
+              if echo "$READY" | grep -q '^notifications$'; then
                 echo "Esquema listo."
                 break
               fi
               echo "Esperando esquema de DB..."; sleep 2
             done
-            if [ "$READY" != "1" ]; then
-              echo "Forzando aplicación de scripts SQL de /docker-entrypoint-initdb.d ..."
-              compose exec -T postgres bash -lc 'set -e; for f in /docker-entrypoint-initdb.d/*.sql; do echo ">> $f"; psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -f "$f"; done'
+
+            if ! echo "$READY" | grep -q '^notifications$'; then
+              if compose run --rm api sh -lc 'command -v alembic >/dev/null 2>&1'; then
+                compose run --rm api sh -lc "alembic upgrade head" || true
+              else
+                compose exec -T ${DB_SERVICE} bash -lc 'set -e; shopt -s nullglob; for f in /docker-entrypoint-initdb.d/*.sql; do psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -f "$f"; done' || true
+              fi
+              READY=$(compose exec -T ${DB_SERVICE} psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -Atc "SELECT to_regclass('public.notifications');" 2>/dev/null || true)
+              if ! echo "$READY" | grep -q '^notifications$'; then
+                exit 1
+              fi
             fi
 
             mkdir -p backend/reports
@@ -83,7 +95,7 @@ pipeline {
           junit allowEmptyResults: true, testResults: 'backend/reports/pytest.xml'
           dir("${WORKDIR}") {
             sh '''
-              compose() { docker compose "$@" || docker-compose "$@"; }
+              compose() { docker compose "$@" 2>/dev/null || docker-compose "$@"; }
               compose down -v || true
             '''
           }
@@ -135,7 +147,7 @@ pipeline {
         if (env.DISCORD_WEBHOOK?.trim()) {
           def msg = "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} OK (${env.GIT_BRANCH ?: 'n/a'} @ ${env.GIT_COMMIT?.take(7) ?: 'n/a'})"
           sh """curl -s -H 'Content-Type: application/json' -X POST -d '{\"content\":\"${msg}\"}' '${env.DISCORD_WEBHOOK}' || true"""
-        }        
+        }
       }
     }
     failure {
@@ -143,10 +155,8 @@ pipeline {
         if (env.DISCORD_WEBHOOK?.trim()) {
           def msg = "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} FAILED (${env.GIT_BRANCH ?: 'n/a'} @ ${env.GIT_COMMIT?.take(7) ?: 'n/a'})"
           sh """curl -s -H 'Content-Type: application/json' -X POST -d '{\"content\":\"${msg}\"}' '${env.DISCORD_WEBHOOK}' || true"""
-        }        
+        }
       }
     }
   }
 }
-
-
