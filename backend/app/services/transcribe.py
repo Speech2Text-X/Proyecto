@@ -31,7 +31,6 @@ def _download_http(url: str) -> str:
 def _download_local(path_like: str) -> str:
     if not os.path.exists(path_like):
         raise FileNotFoundError(f"No existe el archivo local: {path_like}")
-    # Copiamos a tmp para evitar bloquear el original
     suffix = os.path.splitext(path_like)[-1] or ".bin"
     fd, tmp_path = tempfile.mkstemp(prefix="s2x_", suffix=suffix)
     with open(path_like, "rb") as src, os.fdopen(fd, "wb") as dst:
@@ -44,15 +43,8 @@ def _download_local(path_like: str) -> str:
 
 
 def download_audio_to_temp(uri: str) -> str:
-    """
-    Descarga un audio a un archivo temporal y retorna su ruta local.
-    Soporta: http/https y rutas locales. URIs s3:// no están soportadas en modo local.
-    """
     if uri.startswith("http://") or uri.startswith("https://"):
         return _download_http(uri)
-    if uri.startswith("s3://"):
-        raise RuntimeError("URIs s3:// no están soportadas. Usa http/https o una ruta local montada.")
-    # Ruta local absoluta o relativa dentro del contenedor
     return _download_local(uri)
 
 
@@ -81,7 +73,7 @@ def build_srt(segments: Iterable[Dict]) -> str:
         lines.append(str(idx))
         lines.append(f"{_format_timestamp_srt(start_s)} --> {_format_timestamp_srt(end_s)}")
         lines.append(s["text"].strip())
-        lines.append("")  # separador
+        lines.append("")
         idx += 1
     return "\n".join(lines).strip() + "\n"
 
@@ -99,8 +91,7 @@ def build_vtt(segments: Iterable[Dict]) -> str:
 
 def _load_model() -> WhisperModel:
     model_name = os.getenv("WHISPER_MODEL", "small")
-    compute_type = os.getenv("WHISPER_COMPUTE_TYPE", "int8")  # CPU friendly
-    # En CPU usamos device="cpu". En el futuro se puede parametrizar para GPU.
+    compute_type = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
     return WhisperModel(model_name, device="cpu", compute_type=compute_type)
 
 
@@ -110,9 +101,6 @@ def _run_whisper(
     temperature: Optional[float],
     beam_size: Optional[int],
 ) -> Tuple[List[Dict], str, Optional[float], str]:
-    """
-    Retorna: (segments_list, detected_language, language_confidence, text_full)
-    """
     model = _load_model()
     segments_iter, info = model.transcribe(
         audio_path,
@@ -130,7 +118,6 @@ def _run_whisper(
                 "start_ms": int(seg.start * 1000),
                 "end_ms": int(seg.end * 1000),
                 "text": text.strip(),
-                # faster-whisper no entrega probabilidad por segmento estable; se deja None
                 "confidence": None,
                 "speaker_label": None,
             }
@@ -142,30 +129,19 @@ def _run_whisper(
 
 
 def process_transcription(transcription_id: str) -> None:
-    """
-    Procesa una transcripción en background:
-      - Marca running si está queued
-      - Descarga el audio
-      - Ejecuta Whisper
-      - Inserta segmentos
-      - Marca succeeded con artifacts (srt/vtt inline)
-      - En caso de error, marca failed
-    """
-    # Asegura transición 'queued' -> 'running'
     moved = repo_transcriptions.mark_running(transcription_id)
     if not moved:
-        # No estaba en 'queued' o no existe
         return
 
     audio_path: Optional[str] = None
     try:
         t = repo_transcriptions.get_transcription(transcription_id)
         if not t:
-            raise RuntimeError("Transcription not found after mark_running")
+            raise RuntimeError("Transcripción no encontrada")
 
         audio = repo_audio_files.get_audio(t["audio_id"])
         if not audio:
-            raise RuntimeError("Audio file not found")
+            raise RuntimeError("Archivo de audio no encontrado")
 
         uri = audio["s3_uri"]
         audio_path = download_audio_to_temp(uri)

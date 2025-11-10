@@ -9,7 +9,6 @@ COPY app ./app
 
 ENV DB_URL=postgresql+psycopg://postgres:postgres@postgres:5432/s2x
 ENV PYTHONPATH=/app
-# Whisper defaults (overridable)
 ENV WHISPER_MODEL=small
 ENV WHISPER_COMPUTE_TYPE=int8
 EXPOSE 8000
