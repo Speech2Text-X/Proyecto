@@ -44,6 +44,9 @@ pipeline {
             set -e
             compose() { docker compose "$@" || docker-compose "$@"; }
 
+            docker rm -f s2x-postgres s2x-api >/dev/null 2>&1 || true
+            compose down -v || true
+
             compose up -d postgres
 
             for i in $(seq 1 30); do
