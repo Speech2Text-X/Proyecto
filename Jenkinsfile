@@ -30,7 +30,7 @@ pipeline {
         dir("${WORKDIR}") {
           sh '''
             set -e
-            compose() { docker compose "$@" || docker-compose "$@"; }
+            compose() { docker-compose "$@"; }
             compose build
           '''
         }
@@ -54,6 +54,15 @@ pipeline {
                 echo "Postgres OK"; break
               fi
               echo "Esperando Postgres..."; sleep 2
+            done
+
+            for i in $(seq 1 60); do
+              READY=$(compose exec -T postgres psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -Atc "SELECT 1 FROM information_schema.tables WHERE table_name='notifications' LIMIT 1;" 2>/dev/null || true)
+              if [ "$READY" = "1" ]; then
+                echo "Esquema listo."
+                break
+              fi
+              echo "Esperando esquema de DB..."; sleep 2
             done
 
             mkdir -p backend/reports
