@@ -8,8 +8,8 @@ pipeline {
     githubPush()
   }
   environment {
-    WORKDIR = 'Proyecto'
-    COMPOSE_FILE = "${WORKDIR}/docker-compose.yml"
+    WORKDIR = '.'
+    COMPOSE_FILE = "docker-compose.yml"
     IMAGE_NAME = 's2x-api'
     REGISTRY = ''
     IMAGE_TAG = "${env.GIT_COMMIT ? env.GIT_COMMIT.take(7) : 'local'}"
