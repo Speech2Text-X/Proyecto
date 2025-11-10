@@ -5,6 +5,13 @@ __pycache__/
 # Env
 backend/.env
 
+# Dependencias de Node.js
+node_modules/
+.vite/
+
+# Audios
+*.mp3
+
 # Docker volumes (local)
 **/.DS_Store
 

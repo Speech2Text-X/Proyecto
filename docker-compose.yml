@@ -30,5 +30,13 @@ services:
       - ../audio.mp3:/audios/audio.mp3:ro
     depends_on:
       - postgres
+  files:
+    image: caddy:alpine
+    volumes:
+      - ./frontend/public:/srv:ro
+    command: ["caddy", "file-server", "--root", "/srv", "--listen", ":80"]
+    # opcional si quieres verlo desde el host también:
+    # ports:
+    #   - "8081:80"
 volumes:
   pgdata:
