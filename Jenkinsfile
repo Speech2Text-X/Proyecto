@@ -64,7 +64,11 @@ pipeline {
             done
 
             mkdir -p backend/reports
-            echo -n "x" > ../audio.mp3
+            if [ -f audio.mp3 ]; then
+              cp -f audio.mp3 ../audio.mp3
+            else
+              echo -n "x" > ../audio.mp3
+            fi
 
             compose run --rm \
               -v "$PWD/backend/reports":/app/reports \
