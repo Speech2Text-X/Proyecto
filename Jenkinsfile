@@ -47,6 +47,13 @@ pipeline {
             docker rm -f s2x-postgres s2x-api >/dev/null 2>&1 || true
             compose down -v || true
 
+            rm -rf ../audio.mp3
+            if [ -f audio.mp3 ]; then
+              cp -f audio.mp3 ../audio.mp3
+            else
+              echo -n "x" > ../audio.mp3
+            fi
+
             compose up -d postgres
 
             for i in $(seq 1 30); do
@@ -64,12 +71,6 @@ pipeline {
             done
 
             mkdir -p backend/reports
-            rm -rf ../audio.mp3
-            if [ -f audio.mp3 ]; then
-              cp -f audio.mp3 ../audio.mp3
-            else
-              echo -n "x" > ../audio.mp3
-            fi
 
             compose run --rm \
               -v "$PWD/audio.mp3":/audios/audio.mp3:ro \
