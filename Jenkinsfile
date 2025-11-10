@@ -64,11 +64,9 @@ pipeline {
             done
 
             mkdir -p backend/reports
-            mkdir -p audios
-            echo -n "x" > audios/audio.mp3
+            echo -n "x" > audio.mp3
 
             compose run --rm \
-              -v "$PWD/audios":/audios:ro \
               -v "$PWD/backend/reports":/app/reports \
               api sh -lc "pytest -q --maxfail=1 --disable-warnings --junitxml=/app/reports/pytest.xml"
           '''
