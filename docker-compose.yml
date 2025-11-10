@@ -22,8 +22,12 @@ services:
     container_name: s2x-api
     environment:
       - DB_URL=${DB_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/s2x}
+      - WHISPER_MODEL=${WHISPER_MODEL:-small}
+      - WHISPER_COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-int8}
     ports:
       - "8000:8000"
+    volumes:
+      - ../audio.mp3:/audios/audio.mp3:ro
     depends_on:
       - postgres
 volumes:
