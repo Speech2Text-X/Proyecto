@@ -8,7 +8,7 @@ def test_audio_crud(client):
     _, proj = _user_and_project(client)
 
     # Create
-    r = client.post("/audio", json={"project_id": proj["id"], "s3_uri": "/audios/audio.mp3"})
+    r = client.post("/audio", json={"project_id": proj["id"], "s3_uri": "http://files/audio/audio.mp3"})
     assert r.status_code == 200, r.text
     audio = r.json()
     aid = audio["id"]
@@ -53,7 +53,7 @@ def test_audio_scheme_and_pagination_limits(client):
 def test_delete_audio_cascade_transcriptions(client):
     from app import repo_audio_files
     u, proj = _user_and_project(client)
-    r = client.post("/audio", json={"project_id": proj["id"], "s3_uri": "/audios/audio.mp3"})
+    r = client.post("/audio", json={"project_id": proj["id"], "s3_uri": "http://files/audio/audio.mp3"})
     aid = r.json()["id"]
     r = client.post("/transcriptions", json={"audio_id": aid})
     tid = r.json()["id"]

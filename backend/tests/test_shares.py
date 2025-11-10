@@ -1,7 +1,7 @@
 def _setup_transcription(client):
     u = client.post("/users", json={"email": "frank@example.com", "name": "Frank", "pwd_hash": "x", "role": "user"}).json()
     p = client.post("/projects", json={"owner_id": u["id"], "name": "ShareProj"}).json()
-    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "/audios/audio.mp3"}).json()
+    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "http://files/audio/audio.mp3"}).json()
     t = client.post("/transcriptions", json={"audio_id": a["id"]}).json()
     return t["id"]
 
@@ -69,7 +69,7 @@ def test_share_created_by_null_on_user_delete(client):
     creator = client.post("/users", json={"email": "creator@example.com", "pwd_hash": "x"}).json()
     owner = client.post("/users", json={"email": "owner@example.com", "pwd_hash": "x"}).json()
     p = client.post("/projects", json={"owner_id": owner["id"], "name": "P"}).json()
-    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "/audios/audio.mp3"}).json()
+    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "http://files/audio/audio.mp3"}).json()
     t = client.post("/transcriptions", json={"audio_id": a["id"]}).json()
     r = client.post("/shares", json={"transcription_id": t["id"], "token": "creatortok", "kind": "private", "created_by": creator["id"]})
     assert r.status_code == 200

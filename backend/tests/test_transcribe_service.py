@@ -9,7 +9,7 @@ from app.services.transcribe import process_transcription
 def _bootstrap_data():
     u = repo_users.create_user("svc@example.com", "Svc", "x", "user")
     p = repo_projects.create_project(u["id"], "SvcProj")
-    a = repo_audio_files.create_audio(project_id=p["id"], s3_uri="/audios/audio.mp3")
+    a = repo_audio_files.create_audio(project_id=p["id"], s3_uri="http://files/audio/audio.mp3")
     t = repo_transcriptions.create_transcription(audio_id=a["id"])
     return t["id"]
 
@@ -59,7 +59,7 @@ def test_process_transcription_success(monkeypatch):
 def _bootstrap_bad_audio():
     u = repo_users.create_user("fail@example.com", None, "x", "user")
     p = repo_projects.create_project(u["id"], "Fail")
-    a = repo_audio_files.create_audio(project_id=p["id"], s3_uri="/audios/does-not-exist.wav")
+    a = repo_audio_files.create_audio(project_id=p["id"], s3_uri="http://files/audio/does-not-exist.wav")
     t = repo_transcriptions.create_transcription(audio_id=a["id"])
     return t["id"]
 
@@ -128,7 +128,7 @@ def test_segments_bulk_and_pagination_order():
     from app import repo_segments, repo_transcriptions, repo_projects, repo_users, repo_audio_files
     u = repo_users.create_user("bulk@example.com", None, "x", "user")
     p = repo_projects.create_project(u["id"], "Bulk")
-    a = repo_audio_files.create_audio(p["id"], "/audios/audio.mp3")
+    a = repo_audio_files.create_audio(p["id"], "http://files/audio/audio.mp3")
     t = repo_transcriptions.create_transcription(a["id"])
     segs = [{"start_ms": i, "end_ms": i + 1, "text": "x"} for i in range(0, 2000)]
     n = repo_segments.bulk_insert_segments(t["id"], segs)
@@ -144,7 +144,7 @@ def test_artifacts_uniqueness_on_upsert():
     from app import repo_artifacts, repo_transcriptions, repo_projects, repo_users, repo_audio_files
     u = repo_users.create_user("art@example.com", None, "x", "user")
     p = repo_projects.create_project(u["id"], "Art")
-    a = repo_audio_files.create_audio(p["id"], "/audios/audio.mp3")
+    a = repo_audio_files.create_audio(p["id"], "http://files/audio/audio.mp3")
     t = repo_transcriptions.create_transcription(a["id"])
     repo_artifacts.upsert_artifact(t["id"], "srt", "s3://dummy/s1.srt")
     repo_artifacts.upsert_artifact(t["id"], "srt", "s3://dummy/s2.srt")

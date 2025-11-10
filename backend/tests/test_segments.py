@@ -1,7 +1,7 @@
 def _setup_transcription(client):
     u = client.post("/users", json={"email": "eve@example.com", "name": "Eve", "pwd_hash": "x", "role": "user"}).json()
     p = client.post("/projects", json={"owner_id": u["id"], "name": "S"}).json()
-    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "/audios/audio.mp3"}).json()
+    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "http://files/audio/audio.mp3"}).json()
     t = client.post("/transcriptions", json={"audio_id": a["id"]}).json()
     return t["id"]
 
@@ -29,7 +29,7 @@ def test_segments_crud(client):
 def _tid(client):
     u = client.post("/users", json={"email": "sedge@example.com", "pwd_hash": "x"}).json()
     p = client.post("/projects", json={"owner_id": u["id"], "name": "S"}).json()
-    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "/audios/audio.mp3"}).json()
+    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "http://files/audio/audio.mp3"}).json()
     t = client.post("/transcriptions", json={"audio_id": a["id"]}).json()
     return t["id"]
 

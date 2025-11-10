@@ -41,7 +41,7 @@ def test_project_delete_cascade(client):
     r = client.post("/projects", json={"owner_id": u["id"], "name": "Cascade"})
     proj = r.json()
     pid = proj["id"]
-    r = client.post("/audio", json={"project_id": pid, "s3_uri": "/audios/audio.mp3"})
+    r = client.post("/audio", json={"project_id": pid, "s3_uri": "http://files/audio/audio.mp3"})
     audio = r.json()
     aid = audio["id"]
     r = client.post("/transcriptions", json={"audio_id": aid})

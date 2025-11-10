@@ -4,7 +4,7 @@ from unittest.mock import patch
 def _bootstrap_audio(client):
     u = client.post("/users", json={"email": "dave@example.com", "name": "Dave", "pwd_hash": "x", "role": "user"}).json()
     p = client.post("/projects", json={"owner_id": u["id"], "name": "T"}).json()
-    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "/audios/audio.mp3"}).json()
+    a = client.post("/audio", json={"project_id": p["id"], "s3_uri": "http://files/audio/audio.mp3"}).json()
     return a
 
 
@@ -44,7 +44,7 @@ def test_transcription_state_transitions(client):
 def _audio(client):
     u = client.post("/users", json={"email": "tedge@example.com", "pwd_hash": "x"}).json()
     p = client.post("/projects", json={"owner_id": u["id"], "name": "T"}).json()
-    return client.post("/audio", json={"project_id": p["id"], "s3_uri": "/audios/audio.mp3"}).json()
+    return client.post("/audio", json={"project_id": p["id"], "s3_uri": "http://files/audio/audio.mp3"}).json()
 
 def test_transcription_create_invalid_audio(client):
     with patch("app.routers.transcriptions.process_transcription", autospec=True):

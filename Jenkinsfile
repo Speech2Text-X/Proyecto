@@ -47,14 +47,7 @@ pipeline {
             docker rm -f s2x-postgres s2x-api >/dev/null 2>&1 || true
             compose down -v || true
 
-            rm -rf ../audio.mp3
-            if [ -f audio.mp3 ]; then
-              cp -f audio.mp3 ../audio.mp3
-            else
-              echo -n "x" > ../audio.mp3
-            fi
-
-            compose up -d postgres
+            compose up -d postgres files
 
             for i in $(seq 1 30); do
               if compose exec postgres pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x}; then
@@ -73,7 +66,6 @@ pipeline {
             mkdir -p backend/reports
 
             compose run --rm \
-              -v "$PWD/audio.mp3":/audios/audio.mp3:ro \
               -v "$PWD/backend/reports":/app/reports \
               api sh -lc "pytest -q --disable-warnings --junitxml=/app/reports/pytest.xml"
           '''
