@@ -64,6 +64,10 @@ pipeline {
               fi
               echo "Esperando esquema de DB..."; sleep 2
             done
+            if [ "$READY" != "1" ]; then
+              echo "Forzando aplicación de scripts SQL de /docker-entrypoint-initdb.d ..."
+              compose exec -T postgres bash -lc 'set -e; for f in /docker-entrypoint-initdb.d/*.sql; do echo ">> $f"; psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -f "$f"; done'
+            fi
 
             mkdir -p backend/reports
 
@@ -76,7 +80,7 @@ pipeline {
       }
       post {
         always {
-          junit allowEmptyResults: true, testResults: 'Proyecto/backend/reports/pytest.xml'
+          junit allowEmptyResults: true, testResults: 'backend/reports/pytest.xml'
           dir("${WORKDIR}") {
             sh '''
               compose() { docker compose "$@" || docker-compose "$@"; }
