@@ -16,7 +16,7 @@ pipeline {
     IMAGE_TAG = "${env.GIT_COMMIT ? env.GIT_COMMIT.take(7) : 'local'}"
     DEPLOY_HOST = ''
     DEPLOY_USER = ''
-    DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1437531993469358121/3W1dEIwKvhhkxDeZjvP5Xu2i-CnkWrEng2HJ53mLljXOaBpFlHk4M4SgyQgzrUIH9x5u'  // opcional: URL de webhook de Discord para notificaciones
+    DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1437531993469358121/3W1dEIwKvhhkxDeZjvP5Xu2i-CnkWrEng2HJ53mLljXOaBpFlHk4M4SgyQgzrUIH9x5u'
   }
   stages {
     stage('Checkout') {
