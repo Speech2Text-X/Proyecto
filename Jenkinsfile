@@ -72,6 +72,7 @@ pipeline {
             fi
 
             compose run --rm \
+              -v "$PWD/audio.mp3":/audios/audio.mp3:ro \
               -v "$PWD/backend/reports":/app/reports \
               api sh -lc "pytest -q --disable-warnings --junitxml=/app/reports/pytest.xml"
           '''
