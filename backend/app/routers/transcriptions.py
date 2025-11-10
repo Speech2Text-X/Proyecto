@@ -1,14 +1,15 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
 from typing import List
 from app.schemas import TranscriptionCreate, TranscriptionSuccess
 from app import repo_transcriptions, repo_segments
+from app.services.transcribe import process_transcription
 
 router = APIRouter()
 
 @router.post("")
-def create_transcription(payload: TranscriptionCreate):
+def create_transcription(payload: TranscriptionCreate, background_tasks: BackgroundTasks):
     try:
-        return repo_transcriptions.create_transcription(
+        t = repo_transcriptions.create_transcription(
             audio_id=payload.audio_id,
             mode=payload.mode,
             language_hint=payload.language_hint,
@@ -16,6 +17,9 @@ def create_transcription(payload: TranscriptionCreate):
             temperature=payload.temperature,
             beam_size=payload.beam_size,
         )
+        # Encolar procesamiento en background
+        background_tasks.add_task(process_transcription, t["id"])
+        return t
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
