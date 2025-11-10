@@ -1,5 +1,5 @@
 [
-  {"name":"test_1.mp3","title":"Anacleto","hint":"Anacleto"},
-  {"name":"test_2.mp3","title":"WWE","hint":"John Cena"},
-  {"name":"test_3.mp3","title":"Piccolo","hint":"Por fin apareciste mal nacido"}
+  {"name":"audio.mp3","title":"Anacleto","hint":"Anacleto"},
+  {"name":"audio0.mp3","title":"WWE","hint":"John Cena"},
+  {"name":"audio1.mp3","title":"Piccolo","hint":"Por fin apareciste mal nacido"}
 ]
