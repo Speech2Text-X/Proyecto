@@ -56,8 +56,12 @@ pipeline {
               echo "Esperando Postgres..."; sleep 2
             done
 
-            # Aplicar siempre los SQL para asegurar esquema, por si el volumen es nuevo o los scripts aún no corrieron
-            compose exec postgres bash -lc 'set -e; for f in /docker-entrypoint-initdb.d/*.sql; do echo ">> $f"; psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-s2x} -f "$f"; done'
+            for f in db/*.sql; do
+              if [ -f "$f" ]; then
+                echo ">> Aplicando $f"
+                compose exec -T postgres bash -lc "psql -v ON_ERROR_STOP=1 -U \${POSTGRES_USER:-postgres} -d \${POSTGRES_DB:-s2x} -f /dev/stdin" < "$f"
+              fi
+            done
 
             mkdir -p backend/reports
 
