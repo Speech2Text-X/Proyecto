@@ -64,6 +64,7 @@ pipeline {
             done
 
             mkdir -p backend/reports
+            rm -rf ../audio.mp3
             if [ -f audio.mp3 ]; then
               cp -f audio.mp3 ../audio.mp3
             else
