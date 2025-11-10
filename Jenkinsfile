@@ -56,7 +56,7 @@ pipeline {
               echo "Esperando Postgres..."; sleep 2
             done
 
-            for f in db/*.sql; do
+            for f in db/00_*.sql db/01_schema.sql db/idx_*.sql; do
               if [ -f "$f" ]; then
                 echo ">> Aplicando $f"
                 compose exec -T postgres bash -lc "psql -v ON_ERROR_STOP=1 -U \${POSTGRES_USER:-postgres} -d \${POSTGRES_DB:-s2x} -f /dev/stdin" < "$f"
