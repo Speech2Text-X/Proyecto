@@ -27,7 +27,10 @@ def list_notifications(transcription_id: str, limit: int = Query(50, ge=1, le=20
 
 @router.post("/{nid}/status")
 def update_status(nid: str, payload: UpdateNotificationStatus):
-    n = repo_notifications.update_notification_status(nid, payload.status, payload.payload)
+    try:
+        n = repo_notifications.update_notification_status(nid, payload.status, payload.payload)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     if not n:
         raise HTTPException(status_code=404, detail="Notification not found")
     return n

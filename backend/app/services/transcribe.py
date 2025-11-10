@@ -102,11 +102,13 @@ def _run_whisper(
     beam_size: Optional[int],
 ) -> Tuple[List[Dict], str, Optional[float], str]:
     model = _load_model()
+    temp_value = 0.0 if temperature is None else float(temperature)
+    beam_value = 5 if beam_size is None else int(beam_size)
     segments_iter, info = model.transcribe(
         audio_path,
         language=language_hint,
-        temperature=temperature,
-        beam_size=beam_size,
+        temperature=temp_value,
+        beam_size=beam_value,
     )
     segments: List[Dict] = []
     text_full_parts: List[str] = []
@@ -131,6 +133,20 @@ def _run_whisper(
 def process_transcription(transcription_id: str) -> None:
     moved = repo_transcriptions.mark_running(transcription_id)
     if not moved:
+        return
+
+    if os.getenv("S2X_DISABLE_WHISPER") == "1":
+        try:
+            repo_transcriptions.mark_succeeded(
+                transcription_id,
+                language_detected="",
+                confidence=None,
+                text_full="",
+                artifacts={"srt": "", "vtt": "", "num_segments": 0},
+            )
+        except Exception:
+            repo_transcriptions.mark_failed(transcription_id)
+            raise
         return
 
     audio_path: Optional[str] = None

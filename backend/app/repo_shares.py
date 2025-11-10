@@ -38,7 +38,7 @@ def resolve_share(token: str, grace_seconds: int = 300) -> Optional[Dict[str, An
         "FROM shares s "
         "JOIN transcriptions t ON t.id = s.transcription_id "
         "WHERE s.token = %(token)s "
-        "AND (s.expires_at IS NULL OR (s.expires_at + INTERVAL '%(grace)s seconds') > NOW());"
+        "AND (s.expires_at IS NULL OR (s.expires_at + (%(grace)s || ' seconds')::interval) > NOW());"
     )
     with get_conn() as conn, conn.cursor() as cur:
         cur.execute(sql, {"token": token, "grace": grace_seconds})

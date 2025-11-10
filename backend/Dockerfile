@@ -6,6 +6,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY tests ./tests
 
 ENV DB_URL=postgresql+psycopg://postgres:postgres@postgres:5432/s2x
 ENV PYTHONPATH=/app
