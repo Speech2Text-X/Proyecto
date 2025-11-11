@@ -2,6 +2,8 @@ import os
 import tempfile
 import uuid
 from typing import Dict, Iterable, List, Optional, Tuple
+from urllib.parse import urlparse
+from app.aws import presign_get, AWS_S3_BUCKET
 
 import requests
 from faster_whisper import WhisperModel
@@ -43,6 +45,14 @@ def _download_local(path_like: str) -> str:
 
 
 def download_audio_to_temp(uri: str) -> str:
+    # s3://bucket/key  -> presigned GET -> descarga HTTP
+    if uri.startswith("s3://"):
+        u = urlparse(uri)
+        bucket = u.netloc or AWS_S3_BUCKET
+        key = u.path.lstrip("/")
+        # usa presign para obtener un GET temporal y reusa el downloader HTTP
+        url = presign_get(key)
+        return _download_http(url)
     if uri.startswith("http://") or uri.startswith("https://"):
         return _download_http(uri)
     return _download_local(uri)

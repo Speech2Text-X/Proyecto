@@ -100,6 +100,44 @@ export default function App() {
     },
   }), [apiBase]);
 
+  // AWS S3 upload (opcional)
+  const [fileToUpload, setFileToUpload] = useState(null);
+  const fileInputRef = useRef(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [playUrl, setPlayUrl] = useState("");
+
+  function extractKey(s3_uri) { return s3_uri.replace(/^s3:\/\/[^/]+\//, ""); }
+
+  async function getPlayableUrlFromKey(key, mime="audio/mpeg") {
+    const r = await api.get(`/storage/file-url?key=${encodeURIComponent(key)}&content_type=${encodeURIComponent(mime)}`);
+    return r.url;
+  }
+  
+  async function uploadSelectedFile() {
+    if (!fileToUpload) { alert("Selecciona un archivo"); return; }
+    if (!user) { alert("Primero inicializa usuario/proyecto"); return; }
+    try {
+      setIsUploading(true);
+      const ext = (fileToUpload.name?.split(".").pop() || "mp3").toLowerCase();
+      const up  = await api.post("/storage/upload-url", {
+        user_id: user.id,
+        ext,
+        content_type: fileToUpload.type || "audio/mpeg",
+      });
+
+      await fetch(up.url, {
+        method: "PUT",
+        body: fileToUpload,
+        headers: { "Content-Type": fileToUpload.type || "audio/mpeg" }
+      });
+
+      setAudioUrl(up.s3_uri);   // ← deja el s3:// en tu input como ya haces
+      setPlayUrl("");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
   // Health & bootstrap
   useEffect(() => { (async () => { try { setHealth(await fetch(`${apiBase}/health`).then(r=>r.json())); } catch { setHealth(null); } })(); }, [apiBase]);
 
@@ -290,6 +328,37 @@ export default function App() {
         <div className="flex items-center gap-3">
           <Button onClick={startTranscription} disabled={isBusy || !audioUrl}>{isBusy ? "Procesando…" : "Transcribir"}</Button>
           {transcription?.status && <span className="text-sm text-zinc-300">Estado actual: <b>{transcription.status}</b></span>}
+        </div>
+        <div className="mt-3" style={{display:"flex", gap:"12px", alignItems:"center", flexWrap:"wrap"}}>
+          {/* input real oculto */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            className="hidden-input"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null;
+              setFileToUpload(f);
+            }}
+          />
+
+          {/* botón que abre el picker */}
+          <button type="button" className="btn" onClick={() => fileInputRef.current?.click()}>
+            Seleccionar archivo
+          </button>
+
+          {/* nombre del archivo (truncado) */}
+          <span className="file-pill">{fileToUpload?.name ?? "Ningún archivo seleccionado"}</span>
+
+          {/* subir a S3 */}
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={uploadSelectedFile}
+            disabled={!fileToUpload || !user || isUploading}
+          >
+            {isUploading ? "Subiendo…" : "Subir a S3 y usar"}
+          </button>
         </div>
         {/* <div className="text-xs text-zinc-400 mt-3">
           Tip: también puedes usar {window.location.origin.replace(/\/$/,'') + "/audio/<archivo>"} si expones tu dev-server y el contenedor puede verlo.

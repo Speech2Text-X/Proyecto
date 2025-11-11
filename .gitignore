@@ -4,6 +4,7 @@ __pycache__/
 
 # Env
 backend/.env
+.env
 
 # Dependencias de Node.js
 node_modules/

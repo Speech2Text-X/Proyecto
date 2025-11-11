@@ -68,3 +68,33 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Botones */
+.btn {
+  appearance: none;
+  border: 1px solid #3f3f46;
+  background: #18181b;
+  color: #e4e4e7;
+  padding: .55rem .9rem;
+  border-radius: .6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .02s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+}
+.btn:hover { background: #27272a; border-color: #52525b; }
+.btn:active { transform: translateY(1px); }
+.btn[disabled] { opacity: .6; cursor: not-allowed; }
+
+.btn-primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+.file-pill {
+  display: inline-block;
+  font-size: .8rem;
+  color: #a1a1aa;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hidden-input { display:none; }

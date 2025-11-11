@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import users, projects, audio, transcriptions, segments, shares, notifications, health
+from app.routers import users, projects, audio, transcriptions, segments, shares, notifications, health, storage
 
 app = FastAPI(title="Speech2Text X API", version="0.1.0")
 
@@ -20,3 +20,4 @@ app.include_router(transcriptions.router, prefix="/transcriptions", tags=["trans
 app.include_router(segments.router, prefix="/segments", tags=["segments"])
 app.include_router(shares.router, prefix="/shares", tags=["shares"])
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+app.include_router(storage.router, prefix="/storage", tags=["storage"])
